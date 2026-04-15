@@ -1,9 +1,20 @@
-from sqlalchemy import JSON, Column, Float, ForeignKey, String, Text
+from sqlalchemy import JSON, Boolean, Column, Float, ForeignKey, String, Text
 from sqlalchemy.orm import DeclarativeBase, relationship
 
 
 class Base(DeclarativeBase):
     pass
+
+
+class BudgetAlert(Base):
+    __tablename__ = "budget_alerts"
+
+    id = Column(String, primary_key=True, default="default")
+    daily_budget_usd = Column(Float, nullable=False)
+    webhook_url = Column(String, nullable=True)
+    email = Column(String, nullable=True)
+    triggered_today = Column(Boolean, default=False)
+    last_triggered = Column(Float, nullable=True)  # unix epoch
 
 
 class Request(Base):

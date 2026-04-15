@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api.routes.ingest import router as ingest_router
 from api.routes.dashboard import router as dashboard_router
+from api.routes.alerts import router as alerts_router
 from pipeline.worker import start_worker, stop_worker
 from storage.database import init_db
 
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(ingest_router)
 app.include_router(dashboard_router)
+app.include_router(alerts_router)
 
 # Serve the static dashboard
 app.mount("/", StaticFiles(directory="dashboard", html=True), name="dashboard")

@@ -1,0 +1,85 @@
+"""
+Budget alert endpoints — set, read, delete daily cost budgets.
+"""
+import time
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select, text
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from api.schemas import BudgetAlertPayload, BudgetAlertResponse
+from storage.database import get_session
+from storage.models import BudgetAlert
+
+router = APIRouter(prefix="/alerts")
+
+
+async def _get_spent_today(db: AsyncSession) -> float:
+    sql = text("""
+        SELECT COALESCE(SUM(CAST(json_extract(r.metadata, '$.cost_usd') AS REAL)), 0) AS spent
+        FROM requests r
+        WHERE r.timestamp >= strftime('%s', 'now', 'start of day')
+    """)
+    row = (await db.execute(sql)).one()
+    return round(row.spent, 6)
+
+
+@router.post("/budget")
+async def set_budget(payload: BudgetAlertPayload, db: AsyncSession = Depends(get_session)):
+    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
+    alert = result.scalar_one_or_none()
+
+    if alert:
+        alert.daily_budget_usd = payload.daily_budget_usd
+        alert.webhook_url = payload.webhook_url
+        alert.email = payload.email
+        alert.triggered_today = False
+    else:
+        alert = BudgetAlert(
+            id="default",
+            daily_budget_usd=payload.daily_budget_usd,
+            webhook_url=payload.webhook_url,
+            email=payload.email,
+        )
+        db.add(alert)
+
+    await db.commit()
+
+    spent = await _get_spent_today(db)
+    return BudgetAlertResponse(
+        daily_budget_usd=alert.daily_budget_usd,
+        webhook_url=alert.webhook_url,
+        email=alert.email,
+        triggered_today=alert.triggered_today,
+        spent_today_usd=spent,
+        percent_used=round(spent / alert.daily_budget_usd * 100, 1) if alert.daily_budget_usd > 0 else 0,
+    )
+
+
+@router.get("/budget")
+async def get_budget(db: AsyncSession = Depends(get_session)):
+    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
+    alert = result.scalar_one_or_none()
+
+    if not alert:
+        return {"configured": False}
+
+    spent = await _get_spent_today(db)
+    return BudgetAlertResponse(
+        daily_budget_usd=alert.daily_budget_usd,
+        webhook_url=alert.webhook_url,
+        email=alert.email,
+        triggered_today=alert.triggered_today,
+        spent_today_usd=spent,
+        percent_used=round(spent / alert.daily_budget_usd * 100, 1) if alert.daily_budget_usd > 0 else 0,
+    )
+
+
+@router.delete("/budget")
+async def delete_budget(db: AsyncSession = Depends(get_session)):
+    result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
+    alert = result.scalar_one_or_none()
+    if alert:
+        await db.delete(alert)
+        await db.commit()
+    return {"deleted": True}

@@ -4,7 +4,10 @@ Drop-in replacement: swap _queue for an actual broker client later.
 """
 import asyncio
 import logging
+import time
 from typing import Any
+
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -45,8 +48,52 @@ async def _process(message: dict[str, Any]) -> None:
             db.add(ev)
             await db.commit()
             logger.info("Evaluated %s → quality=%.2f", request_id, eval_result["quality_score"])
+
+            # Check budget alert
+            await _check_budget_alert(db)
     except Exception:
         logger.exception("Error processing request %s", request_id)
+
+
+async def _check_budget_alert(db) -> None:
+    """Fire webhook if daily spend exceeds the configured budget."""
+    try:
+        from sqlalchemy import select, text
+        from storage.models import BudgetAlert
+
+        result = await db.execute(select(BudgetAlert).where(BudgetAlert.id == "default"))
+        alert = result.scalar_one_or_none()
+        if not alert or alert.triggered_today:
+            return
+
+        sql = text("""
+            SELECT COALESCE(SUM(CAST(json_extract(r.metadata, '$.cost_usd') AS REAL)), 0) AS spent
+            FROM requests r
+            WHERE r.timestamp >= strftime('%s', 'now', 'start of day')
+        """)
+        row = (await db.execute(sql)).one()
+        spent = row.spent
+
+        if spent >= alert.daily_budget_usd:
+            alert.triggered_today = True
+            alert.last_triggered = time.time()
+            await db.commit()
+            logger.warning("Budget alert triggered: $%.4f spent of $%.2f budget", spent, alert.daily_budget_usd)
+
+            if alert.webhook_url:
+                try:
+                    async with httpx.AsyncClient(timeout=10) as client:
+                        await client.post(alert.webhook_url, json={
+                            "alert": "budget_exceeded",
+                            "daily_budget_usd": alert.daily_budget_usd,
+                            "spent_today_usd": round(spent, 4),
+                            "percent_used": round(spent / alert.daily_budget_usd * 100, 1),
+                            "timestamp": time.time(),
+                        })
+                except Exception:
+                    logger.exception("Failed to send webhook for budget alert")
+    except Exception:
+        logger.exception("Budget alert check failed")
 
 
 async def _worker_loop() -> None:
