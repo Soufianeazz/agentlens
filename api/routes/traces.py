@@ -137,7 +137,12 @@ async def end_span(trace_id: str, span_id: str, payload: EndSpanPayload, db: Asy
 async def list_traces(
     name: str | None = Query(None),
     status: str | None = Query(None),
+    from_ts: float | None = Query(None, description="Unix timestamp — only traces started after this"),
+    to_ts: float | None = Query(None, description="Unix timestamp — only traces started before this"),
+    min_duration_ms: float | None = Query(None, description="Only traces slower than this (ms)"),
+    min_cost_usd: float | None = Query(None, description="Only traces more expensive than this (USD)"),
     limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     db: AsyncSession = Depends(get_session),
 ):
     query = select(Trace).order_by(Trace.started_at.desc())
@@ -145,8 +150,16 @@ async def list_traces(
         query = query.where(Trace.name.contains(name))
     if status:
         query = query.where(Trace.status == status)
+    if from_ts is not None:
+        query = query.where(Trace.started_at >= from_ts)
+    if to_ts is not None:
+        query = query.where(Trace.started_at <= to_ts)
+    if min_duration_ms is not None:
+        query = query.where(Trace.total_duration_ms >= min_duration_ms)
+    if min_cost_usd is not None:
+        query = query.where(Trace.total_cost_usd >= min_cost_usd)
 
-    result = await db.execute(query.limit(limit))
+    result = await db.execute(query.offset(offset).limit(limit))
     traces = result.scalars().all()
 
     # Get span counts
@@ -172,7 +185,24 @@ async def list_traces(
             "ended_at": t.ended_at,
         })
 
-    return {"traces": items, "count": len(items)}
+    return {"traces": items, "count": len(items), "offset": offset, "limit": limit}
+
+
+@router.delete("/{trace_id}")
+async def delete_trace(trace_id: str, db: AsyncSession = Depends(get_session)):
+    result = await db.execute(select(Trace).where(Trace.id == trace_id))
+    trace = result.scalar_one_or_none()
+    if not trace:
+        return {"error": "trace not found"}
+
+    spans_result = await db.execute(select(Span).where(Span.trace_id == trace_id))
+    spans = spans_result.scalars().all()
+    span_count = len(spans)
+    for span in spans:
+        await db.delete(span)
+    await db.delete(trace)
+    await db.commit()
+    return {"deleted": True, "trace_id": trace_id, "spans_deleted": span_count}
 
 
 @router.get("/{trace_id}")
