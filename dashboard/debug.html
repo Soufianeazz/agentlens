@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Debugger — LLM Evaltrack</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; padding: 2rem; }
+    a { color: #818cf8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+    .subtitle { color: #64748b; font-size: 0.875rem; margin-bottom: 1.5rem; }
+    .filters { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: end; }
+    .filter-group { display: flex; flex-direction: column; gap: 0.25rem; }
+    .filter-group label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
+    .filter-group input, .filter-group select {
+      background: #1e2130; border: 1px solid #2d3148; color: #e2e8f0;
+      padding: 0.4rem 0.6rem; border-radius: 4px; font-size: 0.85rem;
+    }
+    .filter-group input { width: 160px; }
+    .filter-group select { width: 160px; }
+    .btn { background: #818cf8; color: #0f1117; border: none; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+    .btn:hover { background: #6366f1; }
+    .btn-ghost { background: none; border: 1px solid #2d3148; color: #64748b; }
+    .results-count { color: #64748b; font-size: 0.8rem; margin-bottom: 1rem; }
+    .request-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .request-card {
+      background: #1e2130; border: 1px solid #2d3148; border-radius: 8px;
+      padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.2s;
+    }
+    .request-card:hover { border-color: #818cf8; }
+    .request-card.expanded { border-color: #818cf8; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .card-meta { display: flex; gap: 1rem; font-size: 0.75rem; color: #64748b; }
+    .score { font-weight: 700; }
+    .score.bad { color: #f87171; }
+    .score.mid { color: #fb923c; }
+    .score.good { color: #4ade80; }
+    .flag { display: inline-block; font-size: 0.65rem; background: #2d1b1b; color: #f87171;
+            border: 1px solid #7f1d1d; border-radius: 4px; padding: 0 0.35rem; margin: 1px; }
+    .preview-text { color: #94a3b8; font-size: 0.8rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .detail { display: none; margin-top: 1rem; border-top: 1px solid #2d3148; padding-top: 1rem; }
+    .detail.open { display: block; }
+    .detail-section { margin-bottom: 1rem; }
+    .detail-label { font-size: 0.7rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+    .detail-content {
+      background: #0f1117; border: 1px solid #1e2130; border-radius: 6px;
+      padding: 0.75rem; font-size: 0.8rem; color: #cbd5e1; white-space: pre-wrap;
+      word-break: break-word; max-height: 200px; overflow-y: auto;
+    }
+    .eval-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+    .eval-item { background: #0f1117; border-radius: 6px; padding: 0.75rem; text-align: center; }
+    .eval-item .val { font-size: 1.25rem; font-weight: 700; }
+    .eval-item .lbl { font-size: 0.7rem; color: #64748b; margin-top: 0.2rem; }
+    .meta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; font-size: 0.8rem; }
+    .meta-grid div { background: #0f1117; padding: 0.5rem; border-radius: 4px; }
+    .meta-grid .key { color: #64748b; }
+    .meta-grid .val { color: #e2e8f0; }
+    @media (max-width: 700px) { .eval-grid { grid-template-columns: 1fr 1fr; } .meta-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div style="margin-bottom:1rem;"><a href="/">← Dashboard</a></div>
+  <h1>Prompt Debugger</h1>
+  <p class="subtitle">Search and inspect individual LLM calls — find exactly where and why things fail</p>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label>Model</label>
+      <select id="filterModel"><option value="">All models</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Max Quality</label>
+      <input type="number" id="filterMaxQuality" min="0" max="1" step="0.1" placeholder="e.g. 0.5" />
+    </div>
+    <div class="filter-group">
+      <label>Flag</label>
+      <select id="filterFlag"><option value="">All flags</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Prompt contains</label>
+      <input type="text" id="filterPrompt" placeholder="search in prompt..." />
+    </div>
+    <div class="filter-group">
+      <label>Input contains</label>
+      <input type="text" id="filterInput" placeholder="search in input..." />
+    </div>
+    <div class="filter-group">
+      <label>Output contains</label>
+      <input type="text" id="filterOutput" placeholder="search in output..." />
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <button class="btn" id="searchBtn">Search</button>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <button class="btn btn-ghost" id="clearBtn">Clear</button>
+    </div>
+  </div>
+
+  <div class="results-count" id="resultsCount"></div>
+  <div class="request-list" id="requestList"></div>
+
+  <script>
+    const API = "";
+
+    function scoreClass(s) {
+      if (s === null || s === undefined) return "";
+      if (s < 0.4) return "bad";
+      if (s < 0.7) return "mid";
+      return "good";
+    }
+
+    function fmtTime(ts) {
+      return new Date(ts * 1000).toLocaleString();
+    }
+
+    // Load filter options
+    async function loadFilters() {
+      try {
+        const [models, flags] = await Promise.all([
+          fetch(`${API}/debug/models`).then(r => r.json()),
+          fetch(`${API}/debug/flags`).then(r => r.json()),
+        ]);
+        const ms = document.getElementById("filterModel");
+        for (const m of models) {
+          ms.innerHTML += `<option value="${m}">${m}</option>`;
+        }
+        const fs = document.getElementById("filterFlag");
+        for (const f of flags) {
+          fs.innerHTML += `<option value="${f}">${f}</option>`;
+        }
+      } catch(e) { console.warn("filter load failed", e); }
+    }
+
+    async function search() {
+      const params = new URLSearchParams();
+      const model = document.getElementById("filterModel").value;
+      const maxQ = document.getElementById("filterMaxQuality").value;
+      const flag = document.getElementById("filterFlag").value;
+      const prompt = document.getElementById("filterPrompt").value;
+      const input = document.getElementById("filterInput").value;
+      const output = document.getElementById("filterOutput").value;
+
+      if (model) params.set("model", model);
+      if (maxQ) params.set("max_quality", maxQ);
+      if (flag) params.set("flag", flag);
+      if (prompt) params.set("prompt_contains", prompt);
+      if (input) params.set("input_contains", input);
+      if (output) params.set("output_contains", output);
+
+      const res = await fetch(`${API}/debug/requests?${params}`);
+      const data = await res.json();
+
+      document.getElementById("resultsCount").textContent = `${data.count} results`;
+      const list = document.getElementById("requestList");
+      list.innerHTML = "";
+
+      for (const r of data.results) {
+        const flags = (r.flags || []).map(f => `<span class="flag">${f}</span>`).join(" ");
+        const qClass = scoreClass(r.quality_score);
+        const qText = r.quality_score !== null ? r.quality_score.toFixed(2) : "—";
+
+        const card = document.createElement("div");
+        card.className = "request-card";
+        card.innerHTML = `
+          <div class="card-header">
+            <div>
+              <span class="score ${qClass}">${qText}</span> ${flags}
+            </div>
+            <div class="card-meta">
+              <span>${r.model}</span>
+              <span>${fmtTime(r.timestamp)}</span>
+              ${r.cost_usd ? `<span>$${r.cost_usd.toFixed(4)}</span>` : ""}
+              ${r.user_id ? `<span>user: ${r.user_id}</span>` : ""}
+            </div>
+          </div>
+          <div class="preview-text" title="${r.input_preview}"><strong>Input:</strong> ${r.input_preview}</div>
+          <div class="preview-text" title="${r.output_preview}"><strong>Output:</strong> ${r.output_preview}</div>
+          <div class="detail" id="detail-${r.request_id}"></div>
+        `;
+        card.addEventListener("click", () => toggleDetail(r.request_id));
+        list.appendChild(card);
+      }
+    }
+
+    async function toggleDetail(id) {
+      const el = document.getElementById(`detail-${id}`);
+      if (el.classList.contains("open")) {
+        el.classList.remove("open");
+        return;
+      }
+
+      if (!el.dataset.loaded) {
+        const res = await fetch(`${API}/debug/requests/${id}`);
+        const d = await res.json();
+        const ev = d.evaluation;
+
+        el.innerHTML = `
+          ${ev ? `
+          <div class="eval-grid">
+            <div class="eval-item">
+              <div class="val score ${scoreClass(ev.quality_score)}">${ev.quality_score.toFixed(2)}</div>
+              <div class="lbl">Quality</div>
+            </div>
+            <div class="eval-item">
+              <div class="val score ${scoreClass(1 - ev.hallucination_score)}">${ev.hallucination_score.toFixed(2)}</div>
+              <div class="lbl">Hallucination</div>
+            </div>
+            <div class="eval-item">
+              <div class="val">${(ev.flags || []).length}</div>
+              <div class="lbl">Flags</div>
+            </div>
+            <div class="eval-item">
+              <div class="val">${d.cost_usd ? '$' + d.cost_usd.toFixed(4) : '—'}</div>
+              <div class="lbl">Cost</div>
+            </div>
+          </div>
+          ${ev.explanation ? `
+          <div class="detail-section">
+            <div class="detail-label">Evaluation Explanation</div>
+            <div class="detail-content">${ev.explanation}</div>
+          </div>` : ""}
+          ` : "<p style='color:#64748b;'>No evaluation yet</p>"}
+          <div class="detail-section">
+            <div class="detail-label">System Prompt</div>
+            <div class="detail-content">${d.prompt}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">User Input</div>
+            <div class="detail-content">${d.input}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Model Output</div>
+            <div class="detail-content">${d.output}</div>
+          </div>
+          ${d.input_tokens ? `
+          <div class="meta-grid">
+            <div><span class="key">Model:</span> <span class="val">${d.model}</span></div>
+            <div><span class="key">Input tokens:</span> <span class="val">${d.input_tokens}</span></div>
+            <div><span class="key">Output tokens:</span> <span class="val">${d.output_tokens}</span></div>
+          </div>` : ""}
+        `;
+        el.dataset.loaded = "true";
+      }
+      el.classList.add("open");
+    }
+
+    document.getElementById("searchBtn").addEventListener("click", search);
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      document.getElementById("filterModel").value = "";
+      document.getElementById("filterMaxQuality").value = "";
+      document.getElementById("filterFlag").value = "";
+      document.getElementById("filterPrompt").value = "";
+      document.getElementById("filterInput").value = "";
+      document.getElementById("filterOutput").value = "";
+      search();
+    });
+
+    loadFilters();
+    search();
+  </script>
+</body>
+</html>
