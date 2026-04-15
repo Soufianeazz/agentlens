@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agentlens"
+name = "agentlens-monitor"
 version = "0.1.0"
 description = "LLM observability, quality scoring, hallucination detection, cost tracking, and agent run debugging — in 2 lines of code."
 readme = "README_SDK.md"
