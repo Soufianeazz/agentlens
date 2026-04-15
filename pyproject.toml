@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "llm-evaltrack"
-version = "0.1.0"
-description = "Drop-in observability for LLM applications — automatic quality scoring, hallucination detection, and cost tracking."
+version = "0.2.0"
+description = "Drop-in observability for LLM applications — quality scoring, hallucination detection, cost tracking, and agent run debugging."
 readme = "README_SDK.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
