@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to AgentLens!</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .card { background: #1e2130; border: 1px solid #2d3148; border-radius: 16px; padding: 3rem 2.5rem; max-width: 520px; width: 100%; text-align: center; }
+    .icon { font-size: 3.5rem; margin-bottom: 1.5rem; }
+    h1 { font-size: 1.75rem; font-weight: 800; margin-bottom: 0.75rem; }
+    p { color: #94a3b8; font-size: 0.95rem; line-height: 1.7; margin-bottom: 1.5rem; }
+    .steps { text-align: left; background: #0f1117; border-radius: 10px; padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
+    .step { display: flex; gap: 0.75rem; align-items: flex-start; margin-bottom: 0.85rem; font-size: 0.875rem; }
+    .step:last-child { margin-bottom: 0; }
+    .step-num { background: #818cf8; color: #0f1117; font-weight: 800; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; margin-top: 1px; }
+    .step-text { color: #cbd5e1; }
+    .step-text strong { color: #e2e8f0; }
+    .btn { display: inline-block; background: #818cf8; color: #0f1117; font-weight: 700; padding: 0.75rem 2rem; border-radius: 8px; text-decoration: none; font-size: 0.95rem; }
+    .btn:hover { background: #6366f1; }
+    .note { font-size: 0.78rem; color: #475569; margin-top: 1.25rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🎉</div>
+    <h1>You're in!</h1>
+    <p>Payment successful. Welcome to AgentLens — you'll receive a confirmation email shortly.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Check your email</strong> — we'll send you setup instructions within 24 hours.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Install the SDK:</strong> <code style="background:#1e2130; padding:0.1rem 0.4rem; border-radius:3px;">pip install agentlens-monitor</code></div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>2 lines of code</strong> and you're monitoring every LLM call.</div>
+      </div>
+    </div>
+
+    <a href="/" class="btn">View Dashboard</a>
+    <p class="note">Questions? Email us at <a href="mailto:contact@agentlens.io" style="color:#818cf8;">contact@agentlens.io</a></p>
+  </div>
+</body>
+</html>
