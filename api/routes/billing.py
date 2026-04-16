@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/billing")
 
-stripe.api_key = os.getenv("STRIPE_SECRET_KEY", "")
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY") or os.getenv("stripe_secret_key", "")
 
 PRICES = {
     "starter": "price_1TMmZuKFKgqAaSVJfm3jFtmN",
