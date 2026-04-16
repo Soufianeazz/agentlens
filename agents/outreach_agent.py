@@ -1,7 +1,7 @@
 """
 Agent 2 — Outreach Agent
 Liest Leads aus leads.csv, schreibt personalisierte E-Mails mit Claude
-und versendet sie automatisch via Gmail.
+und versendet sie automatisch via SendGrid.
 
 Verwendung:
     python agents/outreach_agent.py --dry-run   # Nur generieren, nicht senden
@@ -11,10 +11,7 @@ import csv
 import os
 import sys
 import asyncio
-import smtplib
 import argparse
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -31,47 +28,55 @@ except ImportError:
 # ── Konfiguration ──────────────────────────────────────────────
 AGENTLENS_URL     = os.getenv("AGENTLENS_URL", "https://llm-evaltrack-production.up.railway.app")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-GMAIL_USER        = os.getenv("GMAIL_USER", "")          # deine@gmail.com
-GMAIL_APP_PW      = os.getenv("GMAIL_APP_PASSWORD", "")  # Google App-Passwort (nicht dein normales PW)
+SENDGRID_API_KEY  = os.getenv("SENDGRID_API_KEY", "")    # SendGrid API Key (SG.xxx...)
+SENDER_EMAIL      = os.getenv("SENDER_EMAIL", "soufian.azzaoui@icloud.com")  # verifizierte Absender-Email
 
-SENDER_NAME   = "Soufian Azzaoui"
-PRODUCT_NAME  = "AgentLens"
-PRODUCT_URL   = "https://llm-evaltrack-production.up.railway.app/landing.html"
-LEADS_FILE    = Path(__file__).parent / "leads.csv"
-PREVIEW_FILE  = Path(__file__).parent / "outreach_preview.txt"
-MAX_LEADS     = 15   # Maximale Leads pro Run
+SENDER_NAME      = "Soufian Azzaoui"
+PRODUCT_NAME     = "AgentLens"
+PRODUCT_URL      = "https://llm-evaltrack-production.up.railway.app/landing.html"
+CASE_STUDY_URL   = "https://llm-evaltrack-production.up.railway.app/case_study.html"
+LEADS_FILE       = Path(__file__).parent / "leads.csv"
+PREVIEW_FILE     = Path(__file__).parent / "outreach_preview.txt"
+MAX_LEADS        = 15   # Maximale Leads pro Run
 # ───────────────────────────────────────────────────────────────
 
 
 def generate_email(client: Anthropic, lead: dict) -> dict:
     """Claude schreibt eine personalisierte E-Mail für den Lead."""
-    prompt = f"""Du schreibst eine Cold-Outreach-E-Mail für AgentLens — ein LLM-Observability-Tool.
-AgentLens ist wie LangSmith, aber selbst-gehostet, DSGVO-konform und günstiger (€199/Monat).
-Es tracked LLM-Kosten, Antwortqualität und Agent-Traces in einem Dashboard.
+    prompt = f"""You are writing a cold outreach email for AgentLens — a self-hosted LLM observability tool.
 
-Lead-Infos:
+AgentLens key facts:
+- Self-hosted (data never leaves your infra) — unlike LangSmith or Helicone
+- Auto quality scoring + hallucination detection on every LLM call (zero config)
+- Agent waterfall debugger: see which step failed, how long, what it cost
+- GDPR-native: built for EU teams with compliance requirements
+- 2-line integration: patch_openai() or patch_anthropic()
+- Case study: a German legal tech team cut debugging time by 90% and prevented €1,200 in wasted API costs
+
+Lead info:
 - Name: {lead['name']}
 - GitHub: {lead['github_user']}
 - Repo: {lead['repo_name']} — {lead['repo_description']}
 - Stars: {lead['repo_stars']}
 - Bio: {lead['bio']}
-- Firma: {lead['company']}
+- Company: {lead['company']}
 
-Schreibe eine kurze, persönliche Cold-E-Mail (max. 100 Wörter). Regeln:
-- Beziehe dich natürlich auf ihr konkretes Repo
-- Nenne EINEN konkreten Vorteil (z.B. Kosten tracken, Agent-Debugging, DSGVO)
-- Keine Buzzwords, kein Verkäufer-Sprech — klingt wie Entwickler zu Entwickler
-- Sanfter CTA: kostenlos ausprobieren, kein Kreditkarte nötig
-- Auf Englisch (GitHub-Entwickler international)
+Write a short, personal cold email (max 90 words). Rules:
+- Reference their specific repo or work naturally in the first sentence
+- Pick ONE pain point relevant to their project (cost control, agent debugging, or GDPR/data privacy)
+- Link to the case study as proof: {CASE_STUDY_URL}
+- CTA: ask for a 20-minute demo, not "try for free"
+- Tone: developer-to-developer, no buzzwords, no sales speak
+- Write in English
 
-Format (exakt so):
-SUBJECT: <Betreffzeile>
+Format (exactly):
+SUBJECT: <subject line>
 BODY:
-<E-Mail-Text>
+<email body>
 """
 
     response = client.messages.create(
-        model="claude-3-5-haiku-20241022",
+        model="claude-haiku-4-5",
         max_tokens=350,
         messages=[{"role": "user", "content": prompt}],
     )
@@ -89,9 +94,18 @@ BODY:
         elif in_body:
             body_lines.append(line)
 
-    # Signatur anhängen
+    # Platzhalter bereinigen die Claude manchmal lässt
     body = "\n".join(body_lines).strip()
-    body += f"\n\n--\n{SENDER_NAME}\nAgentLens — LLM Observability\n{PRODUCT_URL}"
+    body = body.replace("[Name]", SENDER_NAME)
+    body = body.replace("[Your Name]", SENDER_NAME)
+    body = body.replace("[Your name]", SENDER_NAME)
+    body = body.replace("[your name]", SENDER_NAME)
+    body = body.replace("[link]", PRODUCT_URL)
+    body = body.replace("[Link]", PRODUCT_URL)
+
+    # Signatur anhängen (nur falls noch keine drin)
+    if "--" not in body[-80:]:
+        body += f"\n\n--\n{SENDER_NAME}\nAgentLens — LLM Observability for EU AI Teams\n{PRODUCT_URL}\nCase study: {CASE_STUDY_URL}"
 
     tokens_in  = response.usage.input_tokens
     tokens_out = response.usage.output_tokens
@@ -101,23 +115,26 @@ BODY:
 
 
 def send_email(to_email: str, to_name: str, subject: str, body: str) -> bool:
-    """Sendet E-Mail via Gmail SMTP."""
-    if not GMAIL_USER or not GMAIL_APP_PW:
+    """Sendet E-Mail via SendGrid API."""
+    if not SENDGRID_API_KEY:
+        print("  [SendGrid API Key fehlt — E-Mail nicht gesendet]")
         return False
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"]    = f"{SENDER_NAME} <{GMAIL_USER}>"
-    msg["To"]      = f"{to_name} <{to_email}>"
-    msg.attach(MIMEText(body, "plain", "utf-8"))
-
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(GMAIL_USER, GMAIL_APP_PW)
-            server.sendmail(GMAIL_USER, to_email, msg.as_string())
-        return True
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail, Email, To, Content
+
+        message = Mail(
+            from_email=Email(SENDER_EMAIL, SENDER_NAME),
+            to_emails=To(to_email, to_name),
+            subject=subject,
+            plain_text_content=Content("text/plain", body),
+        )
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
+        return response.status_code in (200, 202)
     except Exception as e:
-        print(f"  [SMTP Fehler: {e}]")
+        print(f"  [SendGrid Fehler: {e}]")
         return False
 
 
@@ -158,7 +175,7 @@ async def run_outreach(dry_run: bool = False):
     print("=" * 55)
     print(f"  Leads gesamt:     {len(all_leads)}")
     print(f"  Actionable:       {len(actionable)} (Email + neu)")
-    print(f"  SMTP konfiguriert: {'Ja' if GMAIL_USER and GMAIL_APP_PW else 'Nein — nur Preview'}")
+    print(f"  SendGrid:          {'Ja' if SENDGRID_API_KEY else 'Nein (nur Preview)'}")
     print()
 
     sent_count   = 0
