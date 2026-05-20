@@ -83,11 +83,18 @@ async def _apost(path: str, data: dict) -> dict | None:
         return None
 
 
+# Keep strong references to fire-and-forget tasks so the event loop's weak
+# refs don't let CPython GC them mid-flight — see agentlens/tracker.py.
+_pending_fires: set[asyncio.Task[Any]] = set()
+
+
 def _fire(path: str, data: dict) -> dict | None:
     """Send request — async if loop is running, else sync."""
     try:
-        loop = asyncio.get_running_loop()
-        future = asyncio.ensure_future(_apost(path, data))
+        asyncio.get_running_loop()
+        task = asyncio.ensure_future(_apost(path, data))
+        _pending_fires.add(task)
+        task.add_done_callback(_pending_fires.discard)
         return None  # fire-and-forget in async context
     except RuntimeError:
         return _post(path, data)

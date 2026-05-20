@@ -22,6 +22,12 @@ _config: dict[str, Any] = {
     "enabled": True,
 }
 
+# Keep strong references to in-flight fire-and-forget tasks. Without this the
+# event loop only weakly references them and CPython's GC can collect a task
+# mid-execution — silently dropping the customer's telemetry under load.
+# See https://docs.python.org/3/library/asyncio-task.html#asyncio.create_task
+_pending_tasks: set[asyncio.Task[Any]] = set()
+
 
 def init(
     api_url: str = "http://localhost:8000/ingest",
@@ -99,7 +105,9 @@ def track_llm_call(
 
     try:
         loop = asyncio.get_running_loop()
-        loop.create_task(_send(payload))
+        task = loop.create_task(_send(payload))
+        _pending_tasks.add(task)
+        task.add_done_callback(_pending_tasks.discard)
     except RuntimeError:
         threading.Thread(target=_send_sync, args=(payload,), daemon=True).start()
 
