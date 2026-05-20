@@ -39,6 +39,9 @@ def _is_local_url(url: str) -> bool:
 _queue: asyncio.Queue[dict[str, Any]] = asyncio.Queue(maxsize=1000)
 _task: asyncio.Task | None = None
 _semaphore: asyncio.Semaphore = asyncio.Semaphore(8)
+# Strong refs to in-flight per-message tasks. The event loop only keeps weak
+# refs, so without this CPython can GC a half-processed message.
+_inflight: set[asyncio.Task] = set()
 
 
 async def enqueue(message: dict[str, Any]) -> None:
@@ -159,7 +162,9 @@ async def _process_bounded(message: dict[str, Any]) -> None:
 async def _worker_loop() -> None:
     while True:
         message = await _queue.get()
-        asyncio.create_task(_process_bounded(message))
+        t = asyncio.create_task(_process_bounded(message))
+        _inflight.add(t)
+        t.add_done_callback(_inflight.discard)
 
 
 async def start_worker() -> None:
