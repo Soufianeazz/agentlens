@@ -1,10 +1,13 @@
 """
 Agent debugging endpoints — traces and spans for multi-step agent runs.
 """
+import logging
 import time
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+
+logger = logging.getLogger("traces")
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,8 +38,9 @@ def _span_effective_cost(span: Span) -> float:
             )
             if computed is not None:
                 return computed
-    except Exception:
-        pass
+    except (TypeError, ValueError) as exc:
+        # Bad metadata shape (non-numeric tokens). Falls through to estimate.
+        logger.warning("span %s: invalid input/output_tokens metadata: %s", getattr(span, "id", "?"), exc)
 
     # Fallback: estimate split from total tokens if available.
     try:
@@ -48,8 +52,8 @@ def _span_effective_cost(span: Span) -> float:
             computed = compute_cost_from_tokens(span.model, est_input, est_output)
             if computed is not None:
                 return computed
-    except Exception:
-        pass
+    except (TypeError, ValueError) as exc:
+        logger.warning("span %s: invalid total tokens, falling back to stored cost_usd: %s", getattr(span, "id", "?"), exc)
 
     return float(span.cost_usd or 0.0)
 
