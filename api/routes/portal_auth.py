@@ -1,11 +1,14 @@
 import hashlib
 import hmac
+import logging
 import os
 import secrets
 import time
 import uuid
 
 import httpx
+
+logger = logging.getLogger("portal_auth")
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, EmailStr, Field
 from sqlalchemy import select
@@ -108,7 +111,7 @@ async def _send_welcome_email(user_email: str, api_key: str, name: str | None) -
     async with httpx.AsyncClient(timeout=10) as client:
         if resend_api_key:
             try:
-                await client.post(
+                resp = await client.post(
                     "https://api.resend.com/emails",
                     headers={"Authorization": f"Bearer {resend_api_key}"},
                     json={
@@ -118,12 +121,14 @@ async def _send_welcome_email(user_email: str, api_key: str, name: str | None) -
                         "text": welcome_body,
                     },
                 )
+                if resp.status_code >= 400:
+                    logger.error("signup welcome email failed for %s: %s %s", user_email, resp.status_code, resp.text[:200])
             except Exception:
-                pass
+                logger.exception("signup welcome email crashed for %s", user_email)
 
             if notify_email:
                 try:
-                    await client.post(
+                    resp = await client.post(
                         "https://api.resend.com/emails",
                         headers={"Authorization": f"Bearer {resend_api_key}"},
                         json={
@@ -133,8 +138,10 @@ async def _send_welcome_email(user_email: str, api_key: str, name: str | None) -
                             "text": f"New AgentLens signup\n\nEmail: {user_email}\nAPI key: {api_key}\n",
                         },
                     )
+                    if resp.status_code >= 400:
+                        logger.error("signup admin-notify email failed: %s %s", resp.status_code, resp.text[:200])
                 except Exception:
-                    pass
+                    logger.exception("signup admin-notify email crashed (user=%s)", user_email)
 
 
 @router.post("/signup")

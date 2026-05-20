@@ -3,12 +3,15 @@ Stripe billing — checkout sessions for Starter, Team, and Scale plans.
 Enterprise redirects to sales contact.
 """
 import asyncio
+import logging
 import os
 import time
 from typing import Any
 
 import httpx
 import stripe
+
+logger = logging.getLogger("billing")
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy import select
@@ -60,7 +63,7 @@ async def _notify_billing_event(payload: dict[str, Any]) -> None:
     async with httpx.AsyncClient(timeout=10) as client:
         if webhook_url:
             try:
-                await client.post(
+                resp = await client.post(
                     webhook_url,
                     json={
                         "event": event_kind,
@@ -68,8 +71,10 @@ async def _notify_billing_event(payload: dict[str, Any]) -> None:
                         "billing": payload,
                     },
                 )
+                if resp.status_code >= 400:
+                    logger.error("billing webhook returned %s for event=%s: %s", resp.status_code, event_kind, resp.text[:200])
             except Exception:
-                pass
+                logger.exception("billing webhook crashed for event=%s", event_kind)
 
         if resend_api_key and notify_email:
             try:
@@ -112,7 +117,7 @@ async def _notify_billing_event(payload: dict[str, Any]) -> None:
                         f"Source: {payload.get('source', 'n/a')}\n"
                         f"Timestamp: {payload.get('timestamp', 'n/a')}\n"
                     )
-                await client.post(
+                resp = await client.post(
                     "https://api.resend.com/emails",
                     headers={"Authorization": f"Bearer {resend_api_key}"},
                     json={
@@ -122,8 +127,10 @@ async def _notify_billing_event(payload: dict[str, Any]) -> None:
                         "text": body,
                     },
                 )
+                if resp.status_code >= 400:
+                    logger.error("billing-notify email failed (event=%s): %s %s", event_kind, resp.status_code, resp.text[:200])
             except Exception:
-                pass
+                logger.exception("billing-notify email crashed (event=%s)", event_kind)
 
 PLANS = {
     "starter": {
