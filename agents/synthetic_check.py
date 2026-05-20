@@ -48,19 +48,35 @@ PROBES = [
 
 
 def fetch(path: str, method: str, with_key: bool) -> tuple[int | str, str]:
-    """Return (status_or_error, detail). status_or_error is int on HTTP, str on network error."""
+    """Return (status_or_error, detail).
+
+    Retries once after a short warmup on transient errors (network, 5xx) —
+    Railway cold-starts during a sequential probe sequence produce false
+    positives. 4xx is returned immediately because those are real errors.
+    """
     headers = {"User-Agent": "agentlens-synthetic/1.0"}
     if with_key:
         headers["X-API-Key"] = DEMO_KEY
     req = urllib.request.Request(f"{URL}{path}", method=method, headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=TIMEOUT) as resp:
-            return resp.status, ""
-    except urllib.error.HTTPError as e:
-        body = e.read(200).decode("utf-8", errors="replace")
-        return e.code, body
-    except Exception as e:
-        return f"ERR:{type(e).__name__}", str(e)[:200]
+
+    def _once(timeout: float) -> tuple[int | str, str]:
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.status, ""
+        except urllib.error.HTTPError as e:
+            body = e.read(200).decode("utf-8", errors="replace")
+            return e.code, body
+        except Exception as e:
+            return f"ERR:{type(e).__name__}", str(e)[:200]
+
+    status, detail = _once(TIMEOUT)
+    transient = (
+        isinstance(status, str) and status.startswith("ERR:")
+    ) or (isinstance(status, int) and status >= 500)
+    if not transient:
+        return status, detail
+    time.sleep(5)
+    return _once(max(TIMEOUT, 20))
 
 
 # ── GitHub Issue glue (same as uptime_watcher) ────────────────────────────────

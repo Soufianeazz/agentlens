@@ -125,18 +125,34 @@ LIVE_PROBES = [
 
 
 def http_get(path: str, with_key: bool) -> tuple[int | str, bytes]:
-    """Return (status-or-error-string, body-bytes)."""
+    """Return (status-or-error-string, body-bytes).
+
+    Retries transient network errors and 5xx once after a short warmup —
+    Railway containers can cold-start during a sequential scan, and a single
+    10s timeout per endpoint produces false-positive outage alerts.
+    """
     headers = {"User-Agent": "agentlens-radar/1.0"}
     if with_key:
         headers["X-API-Key"] = DEMO_KEY
     req = urllib.request.Request(f"{URL}{path}", headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            return resp.status, resp.read(8192)
-    except urllib.error.HTTPError as e:
-        return e.code, e.read(400)
-    except Exception as e:
-        return f"ERR:{type(e).__name__}", str(e).encode()[:400]
+
+    def _once(timeout: int) -> tuple[int | str, bytes]:
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                return resp.status, resp.read(8192)
+        except urllib.error.HTTPError as e:
+            return e.code, e.read(400)
+        except Exception as e:
+            return f"ERR:{type(e).__name__}", str(e).encode()[:400]
+
+    status, body = _once(timeout=12)
+    transient = (
+        isinstance(status, str) and status.startswith("ERR:")
+    ) or (isinstance(status, int) and status >= 500)
+    if not transient:
+        return status, body
+    time.sleep(5)
+    return _once(timeout=20)
 
 
 def check_live_endpoints(report: RadarReport) -> None:
