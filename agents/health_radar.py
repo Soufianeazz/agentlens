@@ -232,20 +232,56 @@ def check_workflow_status(report: RadarReport) -> None:
     runs = data.get("workflow_runs", []) or []
     if not runs:
         return
-    # Group by workflow name, take most recent
-    latest_by_name: dict[str, dict] = {}
+    # If we already detected an outage in this scan, every uptime-style workflow
+    # failure is a downstream symptom of the same incident — issuing separate
+    # MEDIUM tickets for each just creates noise. Suppress them.
+    outage_detected = any(
+        f.category == "outage" or (f.category == "endpoint" and f.severity == "CRITICAL")
+        for f in report.findings
+    )
+    UPTIME_DEPENDENT = {
+        "Demo Freshness Keeper",
+        "Uptime Health Alert",
+        "Uptime Watcher",
+        "Synthetic Check",
+        "Health Radar",          # don't self-report
+        "Pilot Pulse",
+        "Pilot Instance Pulse",
+    }
+    # Group by workflow name, take most recent. Also keep the immediate predecessor
+    # so we only flag a workflow when its LAST TWO runs both failed — single
+    # failures are almost always transient infra hiccups.
+    by_name: dict[str, list[dict]] = {}
     for r in runs:
         n = r.get("name", "?")
-        if n not in latest_by_name:
-            latest_by_name[n] = r
-    failed = [r for r in latest_by_name.values() if r.get("conclusion") == "failure"]
+        by_name.setdefault(n, []).append(r)
+
+    failed: list[dict] = []
+    for name, hist in by_name.items():
+        if len(hist) < 1:
+            continue
+        last = hist[0]
+        if last.get("conclusion") != "failure":
+            continue
+        # Require 2 consecutive failures unless it's a build-critical workflow.
+        critical_workflows = {"Release Pilot Image"}
+        if name not in critical_workflows:
+            prev = hist[1] if len(hist) >= 2 else None
+            if not (prev and prev.get("conclusion") == "failure"):
+                continue
+        failed.append(last)
+
     if not failed:
         return
     for r in failed:
         name = r.get("name", "?")
         url = r.get("html_url", "")
         sha = (r.get("head_sha") or "")[:7]
-        # Workflows that gate the pilot customer's image build are HIGH; ops alerts are MEDIUM
+        if outage_detected and name in UPTIME_DEPENDENT:
+            logger.info("suppress CI finding for %s — symptom of detected outage", name)
+            continue
+        if name == "Health Radar":
+            continue  # never self-flag
         critical_workflows = {"Release Pilot Image"}
         sev = "HIGH" if name in critical_workflows else "MEDIUM"
         report.add(
@@ -484,10 +520,27 @@ def post_github_issue(title: str, body: str, labels: list[str], signature: str) 
         logger.exception("issue creation failed for: %s", title)
 
 
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def _clean_email_env(name: str) -> str:
+    """Strip whitespace/quotes from an email env var; '' if invalid.
+
+    GitHub Actions secrets are returned verbatim — a trailing newline pasted
+    into the secret editor crashes SendGrid with `Invalid header value`.
+    """
+    raw = os.environ.get(name, "") or ""
+    cleaned = raw.strip().strip('"').strip("'")
+    if cleaned and not _EMAIL_RE.match(cleaned):
+        logger.warning("env %s is set but not a valid email (len=%d) — ignoring", name, len(cleaned))
+        return ""
+    return cleaned
+
+
 def send_email(subject: str, body: str) -> None:
-    api_key = os.environ.get("SENDGRID_API_KEY")
-    sender = os.environ.get("SENDER_EMAIL")
-    recipient = os.environ.get("OPS_EMAIL")
+    api_key = (os.environ.get("SENDGRID_API_KEY") or "").strip()
+    sender = _clean_email_env("SENDER_EMAIL")
+    recipient = _clean_email_env("OPS_EMAIL")
     if DRY_RUN or not (api_key and sender and recipient):
         logger.info("[DRY-RUN/no-creds] would email: %s", subject)
         return
@@ -498,7 +551,8 @@ def send_email(subject: str, body: str) -> None:
         SendGridAPIClient(api_key).send(msg)
         logger.info("Email sent: %s", subject)
     except Exception:
-        logger.exception("SendGrid send failed: %s", subject)
+        # Never let email delivery fail the radar scan — issues are the source of truth.
+        logger.exception("SendGrid send failed (non-fatal): %s", subject)
 
 
 def format_finding(f: Finding) -> str:

@@ -18,14 +18,24 @@ jobs:
           if [ -z "$URL" ]; then
             URL="https://www.agentlens.one/healthz"
           fi
-          code=$(curl -s -o /tmp/health.json -w "%{http_code}" --max-time 15 "$URL")
-          echo "status_code=$code" >> "$GITHUB_OUTPUT"
-          if [ "$code" != "200" ]; then
-            echo "Health check failed: HTTP $code"
-            cat /tmp/health.json || true
-            exit 1
-          fi
-          echo "Health check ok."
+          # Up to 3 probes, ~15s apart. A single transient blip (Railway cold
+          # start, edge SSL hiccup) should NOT page; only sustained failure does.
+          last_code=""
+          for attempt in 1 2 3; do
+            last_code=$(curl -s -o /tmp/health.json -w "%{http_code}" \
+                              --max-time 15 --retry 2 --retry-delay 3 --retry-connrefused "$URL")
+            if [ "$last_code" = "200" ]; then
+              echo "status_code=$last_code" >> "$GITHUB_OUTPUT"
+              echo "Health check ok (attempt $attempt)."
+              exit 0
+            fi
+            echo "Probe $attempt: HTTP $last_code"
+            [ "$attempt" -lt 3 ] && sleep 15
+          done
+          echo "status_code=$last_code" >> "$GITHUB_OUTPUT"
+          echo "Health check failed 3x: last HTTP $last_code"
+          cat /tmp/health.json 2>/dev/null || true
+          exit 1
 
       - name: Alert webhook on failure
         if: failure() && env.INTERNAL_ALERT_WEBHOOK_URL != ''
