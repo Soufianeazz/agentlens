@@ -26,6 +26,7 @@ permissions:
 jobs:
   pulse:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     concurrency:
       group: pilot-pulse-${{ github.event.schedule || github.event.inputs.mode }}
       cancel-in-progress: false

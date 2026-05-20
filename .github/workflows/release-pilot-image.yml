@@ -32,6 +32,7 @@ permissions:
 jobs:
   build-and-smoke-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     outputs:
       image_owner: ${{ steps.repo.outputs.owner }}
     steps:
@@ -102,6 +103,7 @@ jobs:
     needs: build-and-smoke-test
     if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       packages: write
