@@ -46,5 +46,11 @@
     "last_day": 0,
     "last_week": 8,
     "last_month": 133
+  },
+  {
+    "date": "2026-05-24",
+    "last_day": 1,
+    "last_week": 7,
+    "last_month": 119
   }
 ]
