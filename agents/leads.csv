@@ -372,3 +372,25 @@ boxlite-ai,BoxLite,support@boxlite.ai,BoxLiteAI,,United States of America,The AI
 xintaofei,XinTaoFei,,,,Wuhan,,,13,codeg,https://github.com/xintaofei/codeg,"Collaborative multi-agent AI coding workspace: aggregate sessions from Claude Code, Codex, Gemini CLI, etc. Desktop app, self-hosted server, or Docker",1316,TypeScript,new,,
 vilmire,vilmire,vilmire@gmail.com,,,,,,5,adhdev,https://github.com/vilmire/adhdev,"🦦 ADHDev — Agent Dashboard Hub. Monitor & control AI coding agents from a single dashboard. Self-hosted, open-source.",33,TypeScript,new,,
 EfeDurmaz16,Efe Baran Durmaz,,efebarandurmaz,,,"Founder building trust, payment, and control infrastructure for autonomous AI agents.",,103,sardis,https://github.com/EfeDurmaz16/sardis,"Open-source compliance & governance runtime for AI agent payments. Sign mandates, enforce policies, audit every transaction. AP2 + x402 + MCP.",6,Python,new,,
+atelier-runtime,atelier-runtime,,,,,,,0,atelier,https://github.com/atelier-runtime/atelier,"Open-source context runtime and governance layer for coding agents. MCP server + Python SDK (Anthropic, LangChain, OpenAI Agents, Google ADK) with sha",5,Python,new,,
+noah-chelednik,chedai__,noahchelednik@proton.me,,,,"CS student · LLM workflows · AI UX
+~5,000 hours of LLM-assisted practice
+Human-in-the-loop systems & iterative tooling",https://chedai.carrd.co/,1,llm-export-analytics,https://github.com/noah-chelednik/llm-export-analytics,"Privacy first toolkit for analyzing your ChatGPT and Claude exports. Model tracking, prompt effectiveness analysis, cost   efficiency metrics (POD/DLO",6,Python,new,,
+Kyros-494,Kyros.494,kyros.494@gmail.com,,,,,,0,kyros-ai,https://github.com/Kyros-494/kyros-ai,"Kyros — The Memory OS for AI Agents  Give your AI agents secure, self-correcting, persistent memory in 3 lines of code.  Three memory types (episodic,",36,Python,new,,
+sblr80595,Sandeep,,,,,,,0,Agentic_FnO_Trader,https://github.com/sblr80595/Agentic_FnO_Trader,🤖 AI-Powered F&O Trading System  Fast-track analysis with market regime detection for Indian options trading. Features premium selling strategies (sho,7,Python,new,,
+OWASP,OWASP,admin@owasp.com,,,United States of America,The OWASP Foundation,https://owasp.org,11177,www-project-agent-memory-guard,https://github.com/OWASP/www-project-agent-memory-guard,OWASP Foundation web repository,11,Python,new,,
+0xtotem,0xtotem,,,,,"senior ml / ai engineer
+ai ∩ web3sec",linktr.ee/0xtotem,19,peek-dspy,https://github.com/0xtotem/peek-dspy,A DSPy port of PEEK,35,Python,new,,
+jmanhype,"Straughter ""BatmanOsama"" Guthrie",,,,,Systems engineer. Elixir/OTP agent infrastructure. VAOS.,https://vaos.sh,149,ace-playbook,https://github.com/jmanhype/ace-playbook,Self-improving LLM system using Generator-Reflector-Curator pattern for online learning from execution feedback,34,Python,new,,
+GH05TCREW,Masic,,,,,,,276,pentestagent,https://github.com/GH05TCREW/pentestagent,"PentestAgent is an AI agent framework for black-box security testing, supporting bug bounty, red-team, and penetration testing workflows.",2435,Python,new,,
+AI45Lab,OpenAI45Lab,,,,,,,86,AgentDoG,https://github.com/AI45Lab/AgentDoG,A Diagnostic Guardrail Framework for AI Agent Safety and Security,472,Python,new,,
+bicardinal,bicardinal,,,,,,https://bicardinal.com,2,brinicle,https://github.com/bicardinal/brinicle,A resource-efficient C++ vector index engine built for low-RAM production workloads,13,Python,new,,
+LKosoj,LKosoj,,,,,,,5,LLMApiGateway,https://github.com/LKosoj/LLMApiGateway,,6,Python,new,,
+iOfficeAI,OfficeAI,,AionUi,,,Smart Office. Simple AI.,https://www.aionui.com,430,AionUi,https://github.com/iOfficeAI/AionUi,"Free, local, open-source 24/7 Cowork app for OpenClaw, Hermes Agent, Claude Code, Codex, OpenCode, Gemini CLI and 20+ more CLI | Customize your assist",26793,TypeScript,new,,
+dohooo,Caspian 東澔,caspian.zhao@outlook.com,caspian_1016,dosu-ai ,San Francisco,Do what I want to do. 🌴 ,https://caspian-zhao.me/,1021,helmor,https://github.com/dohooo/helmor,Open-source local workbench for multi-agent software development.,1137,TypeScript,new,,
+labring,labring,fanux@sealos.io,Sealos_io,,,wallfacer lab,https://sealos.io,1003,FastGPT,https://github.com/labring/FastGPT,"FastGPT is a knowledge-based platform built on the LLMs, offers a comprehensive suite of out-of-the-box capabilities such as data processing, RAG retr",28167,TypeScript,new,,
+qlan-ro,qlan.ro,,,,,,,0,mainframe,https://github.com/qlan-ro/mainframe,AI-native development environment for orchestrating agents,32,TypeScript,new,,
+haidrrrry,Haider Ali khan,,,,,"Hey, I'm Haider
+AI/ML Engineer & Android Developer
+
+Python • PyTorch • Hugging Face • Kotlin • Compose Multiplatform",https://haidrrrry.medium.com/,46,Ai-trader-pro,https://github.com/haidrrrry/Ai-trader-pro,"Production-hardened agent-native trading platform. AI agents register, publish signals, copy trades, and compete — with Docker Compose, PostgreSQL, MC",6,HTML,new,,
