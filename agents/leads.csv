@@ -482,3 +482,23 @@ jayminwest,Jaymin West,,,jayminwest.com,"Seattle, WA",As agent-native as they co
 alecs5am,alex,agety.dev@gmail.com,,,,for collaboration requests ↓,,1,ralphy,https://github.com/alecs5am/ralphy,Create viral videos with AI agents,26,TypeScript,new,,
 codeaholicguy,Hoang Nguyen,,codeaholicguy,ShopBack,Stockholm,"Engineering @shopback;
 Writing @codeaholicguy.com",https://codeaholicguy.com/,1067,ai-devkit,https://github.com/codeaholicguy/ai-devkit,"Make AI coding agents follow a repeatable engineering workflow with planning, memory, verification, skills, and review. One config. All agents. Same w",1232,TypeScript,new,,
+DocAILab,DocAILab,,,,,,,9,XRAG,https://github.com/DocAILab/XRAG,XRAG: eXamining the Core - Benchmarking Foundational Component Modules in Advanced Retrieval-Augmented Generation,117,Python,new,,
+bearded-impala,Siddhesh More,siddheshmr83@gmail.com,,HID,Austin,Software Engineer | Data Science | ML | AI,,4,outlook-agents,https://github.com/bearded-impala/outlook-agents,This repository provides a lightweight multi-agent orchestration system for Microsoft Outlook using local Ollama LLMs and CrewAI. It periodically moni,7,Python,new,,
+adris-misra,Adris Misra,,,,,"Strategic Data, AI, and Industry 4.0 leader with 20+ years of experience helping enterprises transform data into busines",,2,multi-agentic-framework,https://github.com/adris-misra/multi-agentic-framework,"UNS-native, cybersecurity-aware multi-agent reference architecture for U.S. small-to-mid manufacturers. Industrial agentic intelligence aligned with I",11,Python,new,,
+benavlabs,Benav Labs,,,,,Transforming ideas into world class solutions.,benav.io,76,fastroai,https://github.com/benavlabs/fastroai,"FastroAI wraps PydanticAI with production essentials: cost tracking in microcents, multi-step pipelines, and tools that handle failures gracefully.",16,Python,new,,
+eggai-tech,EggAI,,,,,,https://egg-ai.com,12,EggAI,https://github.com/eggai-tech/EggAI,Async-first meta framework for building enterprise-grade multi-agent systems.,55,Python,new,,
+hacrex,HacRex,,,41757265756d20417263,496e20796f757220686561727420e29da4,"Multi Cloud, DevOps, Platform, Security, and AI Engineer who enjoys building things around Cloud, Linux, automation, K8s",,298,devops-ai-engineer-roadmap,https://github.com/hacrex/devops-ai-engineer-roadmap,"AI Infrastructure & DevOps Roadmap covering Linux, Kubernetes, Local LLMs, AI Agents, RAG, AI Observability, Security, and production-grade AI platfor",16,Python,new,,
+dcostenco,Dmitri Costenco,,,,MD/FL,,,3,prism-coder,https://github.com/dcostenco/prism-coder,"The Mind Palace for AI Agents - HIPAA-hardened Cognitive Architecture with on-device LLM (prism-coder:7b), Hebbian learning, ACT-R spreading activatio",142,TypeScript,new,,
+heygen-com,HeyGen,,,,,,,429,hyperframes,https://github.com/heygen-com/hyperframes,Write HTML. Render video. Built for agents.,23789,TypeScript,new,,
+vmDeshpande,Vedant Deshpande,vedant.milind.deshpande@gmail.com,,,India,"I build things that work.
+Backend-focused | MERN | APIs | Automation",https://vmdeshpande.github.io/portfolio1/,24,ai-agent-automation,https://github.com/vmDeshpande/ai-agent-automation,"Modular AI agent workflow automation platform with schedulers, tools, and observability. https://vmdeshpande.github.io/ai-automation-platform-website/",152,TypeScript,new,,
+ChrisChen667788,Chris Chen,c05503110939@me.com,,,"Shanghai,China","前腾讯｜商汤｜海康打工人，
+主职AI解决方案架构师，
+视觉中国签约摄影师&图虫签约摄影师，
+曾经的健身狂人，
+手冲咖啡达人
+新晋超级奶爸
+steam骨灰级收藏家",https://github.com/ChrisChen667788,16,wind-comic,https://github.com/ChrisChen667788/wind-comic,"Multi-agent AI pipeline that turns one line of text into a finished short-form drama: script, cinematic storyboards, character-consistent video. Provi",106,TypeScript,new,,
+yejiming,Chris Yang,jiming_ye@163.com,,,China,,,31,MuseAI,https://github.com/yejiming/MuseAI,专为网络小说作者与创意写作者打造的AI伴侣，与你的角色一起冒险,180,TypeScript,new,,
+decocms,deco CMS,builders@decocms.com,deco_cms,,Brazil,"AI agent teams that continuously optimize, fix, and evolve storefronts. Open-source, agnostic platform.",https://decocms.com,26,studio,https://github.com/decocms/studio,"Open-source control plane for your AI agents. Connect tools, hire agents, track every token and dollar",379,TypeScript,new,,
+durable-streams,Durable Streams,,,,,The open protocol for real-time sync to client applications,https://github.com/durable-streams/durable-streams,33,durable-streams,https://github.com/durable-streams/durable-streams,The data primitive for the agent loop.,1551,TypeScript,new,,
