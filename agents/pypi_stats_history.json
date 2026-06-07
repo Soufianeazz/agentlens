@@ -100,5 +100,11 @@
     "last_day": 18,
     "last_week": 39,
     "last_month": 139
+  },
+  {
+    "date": "2026-06-07",
+    "last_day": 26,
+    "last_week": 63,
+    "last_month": 133
   }
 ]
