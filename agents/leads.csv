@@ -632,3 +632,15 @@ collabs-inc,Collaborators Inc.,hi@collab.computer,CollaboratorAI,,United States 
 lelu-auth,lelu-auth,abenezergetachew0923@gmail.com,,,,,,0,lelu,https://github.com/lelu-auth/lelu,Open source authorization engine for AI agents. Confidence-aware gating · Human-in-the-loop review · Policy-as-code · Full audit trail,23,TypeScript,new,,
 ComposioHQ,Composio,hello@composio.dev,composio,,United States of America,Composio equips agents with well-crafted tools empowering them to tackle complex tasks,https://composio.dev,1992,composio,https://github.com/ComposioHQ/composio,"Composio powers 1000+ toolkits, tool search, context management, authentication, and a sandboxed workbench to help you build AI agents that turn inten",28797,TypeScript,new,,
 heal-dev,heal-dev,,,,,,,3,heal-playwright-tracer,https://github.com/heal-dev/heal-playwright-tracer,"Open-source statement-level Playwright tracer, purpose-built for AI agents. Analyzes test runs with increased accuracy.",39,TypeScript,new,,
+ThreeMoonsLab,Three Moons Lab,info@threemoonslab.com,,,,,https://threemoonslab.com,2,agents-shipgate,https://github.com/ThreeMoonsLab/agents-shipgate,"The deterministic merge gate for AI-generated agent capability changes — a local-first, static Tool-Use Readiness review for MCP, OpenAPI, and SDK too",34,Python,new,,
+cheshire-cat-ai,Cheshire Cat AI,,,,Italy,,,625,core,https://github.com/cheshire-cat-ai/core,AI agent microservice,3045,Python,new,,
+IBM,International Business Machines,awesome@ibm.com,ibmdeveloper,,United States of America,Open Source @ IBM,https://www.ibm.com/opensource/,8268,AssetOpsBench,https://github.com/IBM/AssetOpsBench,"AssetOpsBench - Industry 4.0: A unified benchmark and framework for building, orchestrating, and evaluating domain-specific AI agents for Industry 4.0",1822,Python,new,,
+heypinchy,Pinchy,hey@clemenshelm.com,,,Austria,"Self-hosted AI agent platform built on OpenClaw. Enterprise-ready, offline-capable, open source. 🦞",https://heypinchy.com,2,pinchy,https://github.com/heypinchy/pinchy,"Self-hosted AI agent platform built on OpenClaw. Enterprise-ready, offline-capable, open source. 🦞",165,TypeScript,new,,
+swyxio,swyx.io,,swyx,smol.ai,San Francisco,"ai/software 3.0: https://latent.space/
+
+devrel/devtools: https://dx.tips/
+
+blog: https://swyx.io/ideas
+
+advice/car",https://learninpublic.org,7554,skills,https://github.com/swyxio/skills,Agent skills for Claude Code and other AI agents,141,TypeScript,new,,
+TentacleOpera,TentacleOpera,,,,,,,2,switchboard,https://github.com/TentacleOpera/switchboard,"Switchboard plugin for VS Code, enables subscription-based AI agent teams",209,TypeScript,new,,
