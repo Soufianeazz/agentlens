@@ -1,11 +1,5 @@
 [
   {
-    "date": "2026-05-18",
-    "last_day": 2,
-    "last_week": 31,
-    "last_month": 470
-  },
-  {
     "date": "2026-05-19",
     "last_day": 3,
     "last_week": 22,
@@ -178,5 +172,11 @@
     "last_day": 0,
     "last_week": 9,
     "last_month": 89
+  },
+  {
+    "date": "2026-07-01",
+    "last_day": 8,
+    "last_week": 15,
+    "last_month": 98
   }
 ]
