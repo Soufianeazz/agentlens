@@ -913,3 +913,20 @@ aipoch,AIPOCH,,,,,,,39,open-science,https://github.com/aipoch/open-science,"An o
 clawboo,clawboo,,claw_boo,,United States of America,Open-source AI agent team studio with multi-agent harness. Deploy a team of AI agents with a click of a button.,www.claw.boo,1,clawboo,https://github.com/clawboo/clawboo,"An open-source studio for teams of AI agents, from marketing squads to dev teams to research crews. Deploy a team, then watch them delegate and collab",48,TypeScript,new,,
 Peiiii,Peiiii,,,,"Hefei, Anhui Province, China",Let's build this crazy.,,29,nextclaw,https://github.com/Peiiii/nextclaw,"Local-first AI workspace for agents, skills, files, browser tools, automations, and messaging channels.",225,TypeScript,new,,
 777genius,Илия,iliyazelenkog@gmail.com,,,, Get a lot done by doing very little,https://agentteams.live/,455,agent-teams-ai,https://github.com/777genius/agent-teams-ai,"You're the boss, agents are your team. They handle tasks on their own, message each other, and review each other's work. You just watch the kanban boa",1614,TypeScript,new,,
+observeco,observeco,,,,,,,2,observeco,https://github.com/observeco/observeco,"Self-healing observability for AI agents. Discover, monitor, and auto-recover multi-agent systems — without a cloud dependency.",8,Python,new,,
+linny006,linny006,,,,,,,47,llm-agents-radar,https://github.com/linny006/llm-agents-radar,"Live-updating index of LLM agent frameworks shipping on GitHub, refreshed every 15 minutes",6,Python,new,,
+shuxiachai,Jingbo Chai,jcha0280@uni.sydney.edu.au,,,,"AI Agent Engineer | LLM Applications | Multi-Agent Systems
+
+Master of Computer Science @ The University of Sydney
+
+P",,4,academic-commercialization-agent,https://github.com/shuxiachai/academic-commercialization-agent,"Turn any research paper into a commercialization report — 6 AI agents, TRL/MRL scoring, patent landscape, market intelligence, verified citations. Dee",15,Python,new,,
+teremterem,Oleksandr Tereshchenko,toporok@gmail.com,,,Ukraine,"Principal Engineer specializing in Generative AI with 20+ years of software engineering experience. LLMs, NLP, prompt en",,52,MiniAgents,https://github.com/teremterem/MiniAgents,"An async-first framework for building multi-agent AI systems with an innovative approach to parallelism, so you can focus on creating intelligent agen",137,Python,new,,
+10xHub,10xHub,,,,India,10xHub is an open-source initiative by 10xScale aimed at fostering innovation and collaboration in scalable technology d,https://10xscale.ai/,4,Agentflow,https://github.com/10xHub/Agentflow,"Production-grade framework for building multi-agent AI systems. Graph-based orchestration, LLM-agnostic (OpenAI, Google GenAI, Anthropic), 3-layer mem",16,Python,new,,
+cymoo,Jie,milkywayjc@hotmail.com,,,Shanghai,"Wake up, neo",,34,lovia,https://github.com/cymoo/lovia,A lightweight and elegant AI Agent framework,12,Python,new,,
+preloop,Preloop,,,,,The MCP governance layer,https://preloop.ai,2,preloop,https://github.com/preloop/preloop,"The open-source AI agent control plane: MCP firewall, model gateway with budgets, human approvals, runtime observability, and audit trails",36,Python,new,,
+itsPremkumar,Premkmar M,,,,chennai,"👋 Hi, I’m Premkumar M | B.Tech IT (2025)  
+💻 Open Source Contributor @ OSCI  
+🚀 Passionate about Blockchain, AI & IoT
+",https://www.sproutern.com/,27,Automated-Video-Generator,https://github.com/itsPremkumar/Automated-Video-Generator,"Agentic AI video generator — fully autonomous text-to-video pipeline with free TTS/voice-clone, auto-editing, captions, and 20+ single-task operations",21,TypeScript,new,,
+tianma-if,tianma-if,yingwaizhiying@gmail.com,tianma_if,,China,"Indie Hacker & AI Creator | Crafting Code, Digital Art & Retro IP Rebirth",,53,edgeever,https://github.com/tianma-if/edgeever,"Serverless, 100% free, and open-source Evernote alternative on Cloudflare with native MCP | 无需服务器、0费用、原生支持 AI Agent 的开源自托管『印象笔记』",501,TypeScript,new,,
+tinyfatco,tinyfatco,,,,,,,5,troublemaker,https://github.com/tinyfatco/troublemaker,"Mom, liberated. Multi-platform AI agent runtime.",53,TypeScript,new,,
