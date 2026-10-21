@@ -1537,3 +1537,11 @@ Aaronontheweb,Aaron Stannard,,Aaronontheweb,"Petabridge, LLC","Houston, TX","CEO
 Maintainer: @akkadotnet ",https://www.aaronstannard.com/,983,dotnet-skills-evals,https://github.com/Aaronontheweb/dotnet-skills-evals,Dspy evaluations for https://github.com/Aaronontheweb/dotnet-skills,14,Python,new,,
 FeatherHunter,王辰浩,975559549@qq.com,,,,"The Boy, The Man, The Human.",,17,dsh-mattpocock-skills-deck,https://github.com/FeatherHunter/dsh-mattpocock-skills-deck,安装即自带mattpocock/skills v1.3.1的27个工程与效率技能，无需手动装技能。400亿token打造本插件，在原始技能之上提供10倍的开发效率，也能帮助新手更快上手该技能套件。全力支持GitHub issue；Markdown为预览版；GitLab暂不支持。感谢您的使用和支持💗,181,TypeScript,new,,
 chenweidaben,chenweidaben,,,,,,,0,JLAIharnessos,https://github.com/chenweidaben/JLAIharnessos,杭州健澜科技 · 新一代数智医院工业级智能体操作系统 — 让医疗AI更简单更落地，做医疗AI时代的安卓,8,Python,new,,
+shauryagangrade,Shaurya Gangrade,,,,,,shauryagangrade.vercel.app,19,intent-drift,https://github.com/shauryagangrade/intent-drift,"Evidence-based engine for detecting intent drift in AI-assisted software development. Pluggable providers, weighted scoring, and explainable alignment",6,Python,new,,
+Sheltercosmo,Shelter Zhou,,,Imperial College London,,,,14,Rilldex-RL-Studio,https://github.com/Sheltercosmo/Rilldex-RL-Studio,"RL observability for LLM agents: behavior maps, native trainer metrics, rollout investigations, and Python/SQL analysis.",26,Python,new,,
+stoa-platform,stoa-platform,,,,,,,1,stoa,https://github.com/stoa-platform/stoa,🏛️ The European Agent Gateway — Open-source MCP Gateway for Enterprise AI | gostoa.dev,7,Python,new,,
+MrLesk,Alex Gavrilescu,,mrlesk,,Vienna,"Born in Romania 👶🇷🇴  - 
+Raised in Italy 🎓🇮🇹  - 
+Living in Vienna 🏛️🇦🇹  - 
+Coding around the world 👨‍💻🗺️",https://mrlesk.com,195,Backlog.md,https://github.com/MrLesk/Backlog.md,Backlog.md - A tool for managing project collaboration between humans and AI Agents in a git ecosystem,7096,TypeScript,new,,
+HelpCode-ai,helpcode.ai,info@helpcode.ai,,,Germany,,https://helpcode.ai,10,anythingmcp,https://github.com/HelpCode-ai/anythingmcp,"MCP gateway for AI agents: turn any REST/OpenAPI, GraphQL, SOAP or SQL API into MCP tools. 517 ready-made connectors (SAP, ERP, e-commerce) with RBAC,",773,TypeScript,new,,
